@@ -1,0 +1,119 @@
+Gerenciador de arquivos:
+----------------------------------
+  Vários processos podem abrir o arquivo ao mesmo tempo, todavia, para a escrita torna-se um problema se mais de um processo estiver escrevendo ao mesmo tempo no mesmo arquivo, pois pode ocorrer perda de dados ou o arquivo pode ser corrompido. Para complicar ainda mais o cenário, é preciso entender que um disco rígido, por exemplo, pode ser dividido em várias partes (partições) e cada uma destas partições pode ser organizada (e codificada) de maneira diferente. Discos (ou partições) codificados diferentemente irão requerer diferentes esquemas de acesso. Vamos a um exemplo: se você estiver usando o sistema operacional Windows, essa codificação pode ser do tipo fat, fat32 ou ntfs (New Technology File System), entre outras. É preciso, então, primeiro conhecer e controlar esses diferentes tipos de codificação e depois controlar os arquivos e pastas que existam dentro dos discos ou partições.
+
+  Alguns SOs podem ter mais módulos do que esses apresentados, ocorre que em algumas construções de SO os arquitetos preferem subdividir responsabilidades, na tentativa de deixar o código-fonte mais fácil de compreensão e manutenção.
+
+  O SO não deve impor políticas, mas disponibilizar recursos (mecanismos) para a imposição de política. Com isso, enfatiza-se que não é uma função do SO permitir ou não que um usuário instale um aplicativo de jogo em seu microcomputador. O SO deve, sim, prover os meios para que o usuário faça as instalações que julgar conveniente, visto que a função do microcomputador e, portanto, do SO, é atender as necessidades dos usuários (quando possíveis), sejam elas quais forem.
+
+
+  Design arquitetural, espaço do núcleo e
+-------------------------------------------------------
+ espaço do usuário
+-------------------------
+
+  Existem, de maneira geral, duas grandes vertentes de design arquitetural: a vertente de construção de um núcleo monolítico e a vertente que direciona para a construção de um núcleo em camadas.
+
+*  No núcleo de construção monolítica, todos os elementos (módulos), que compõem o SO, fazem parte de um único bloco, ainda que partes de bloco tenham responsabilidades diferentes. Cada parte tem uma finalidade e estabelece intercomunicação com as demais, sem necessitar de protocolos de comunicação, critérios de identidade e políticas de segurança. A velocidade de comunicação entre os módulos é a mais alta possível por tratar-se de uma estrutura na qual todos os módulos têm acesso a regiões de memória que são compartilhadas entre eles. Contra esse modelo, afirma-se que ele leva a uma programação (criação dos códigos-fonte) muito complexa e com forte dependência entre as diversas partes, de forma que a falha em uma delas leva o núcleo a degenerar rapidamente.
+
+* Arquitetura em camadas, as camadas mais inferiores provêm serviço para as superiores, de forma que quanto mais baixa for a camada, maior será o envolvimento com o hardware do microcomputador. Permite que mudanças em uma camada sejam facilmente isoladas das camadas acima e abaixo, de forma que cada uma possa evoluir individualmente, sem que o todo possa configurar-se como um código extremamente complexo.
+  Entre as camadas é estabelecido um protocolo de comunicação que permite que serviços e recursos providos pelas camadas inferiores sejam acessados de maneira estável, ordeira e com fácil aplicação de políticas de segurança e de registro das atividades para fins de auditorias futuras. 
+também é possível que as diferentes camadas sejam dedicadas a diferentes grupos de funções como, por exemplo, a primeira camada (a mais baixa) teria a responsabilidade de comunicar-se e controlar os equipamentos, a segunda poderia estabelecer mecanismos de controle de acesso à primeira, permitindo a construção de políticas de acesso, de proteção e de segurança dos dados.
+   Contra esse modelo que trabalha com ênfase na comunicação entre as camadas e na separação de funções, afirma-se que prejudica o tempo de comunicação entre as camadas, e que uma necessidade de recurso de um aplicativo do usuário possa demorar demais para chegar ao hardware, tendo em vista que entre as camadas ocorre uma intensa comunicação, e esta envolve regras bem rígidas, as quais estabelecem complexos protocolos de comunicação.
+
+  O núcleo do SO é o que de fato controla o microcomputador, portanto, deve ter uma maneira de proteger o próprio SO para que um aplicativo do usuário, por exemplo, não consuma toda a memória do microcomputador e acabe destruindo o SO que estava na memória. Para essas situações foram criados dois espaços bastante distintos: o espaço do núcleo e o espaço do usuário. 
+
+* No espaço do núcleo, apenas códigos pertencentes ao SO podem ser executados, qualquer uso deste espaço por outros aplicativos resultará em um erro e o programa que tentar isso será encerrado pelo SO.
+  Caso um aplicativo precise de algum serviço do SO, ou de algum dado que esteja no espaço do SO, deverá acessar esses serviços ou dados utilizando-se das chamadas de sistema. A principal finalidade das chamadas de sistema é permitir a comunicação entre o SO e os aplicativos, mas, ao mesmo tempo, manter separados e seguros os espaços do núcleo e o do usuário.
+
+*  Espaço do usuário é, portanto, a região da memória em que são livremente carregados e executados os aplicativos do usuário. Os aplicativos utilitários que acompanham o SO também são executados neste espaço. Pense nesse espaço como um enorme parque de diversões controlado pelo SO.
+  Mas se por algum motivo o usuário precisar que algum aplicativo funcione no espaço do núcleo? Nesta situação, não há como um aplicativo do usuário funcionar no espaço do núcleo, todavia, o usuário pode separar algumas partes do seu aplicativo e reescrevê-las como um driver e, então, pedir ao SO para carregar esse driver. Depois de carregado, as funções desse driver serão executadas no espaço do núcleo e poderão ter acesso direto às funcionalidades do núcleo, mas é uma região muito delicada, qualquer erro e o SO travará (ou reiniciará) e o usuário terá de reiniciar o microcomputador. Dependendo do tamanho do estrago causado, poderá ser necessário reinstalar todo o SO e, nesta situação, o usuário poderá ter grande perda de dados.
+
+  Por recurso, devemos compreender toda funcionalidade ou capacidade que esteja presente no microcomputador. Alguns recursos são providos através de hardware e outros de software, portanto, há duas categorias de recursos.
+
+  Interface gráfica: Tanto no Windows como no Linux, há um motor gráfico (alguns o chamam de servidor gráfico), com o papel de prover funções primárias de manipulação de interfaces gráficas, tais como: criação de um espaço de interação, ou criação de um objeto de interação. Os espaços de interação devem ser compreendidos como todos os espaços em que o programador pode inserir conteúdo e outros elementos na tela. Quando você inicia um aplicativo em um ambiente gráfico, geralmente ele cria uma visualização gráfica que fica contida dentro de uma janela. Esta janela é um espaço de interação em que são criados novos objetos, normalmente com a finalidade de serem utilizados na interação entre o programa e o usuário, por isso são denominados de objetos de interação.
+  Mas esse motor gráfico não consegue, de fato, criar a visualização, pois requer que sejam dados comandos ao hardware do monitor, e estes comandos são emitidos pela placa gráfica do microcomputador. Então, o motor gráfico solicita os recursos da placa gráfica, que solicita os recursos do monitor. Há claramente a colaboração entre dois recursos: o de hardware, representado pela placa gráfica e pelo monitor, e de software, que no exemplo é provido pelo motor gráfico.
+ Em quase todos os recursos é usada uma abordagem parecida. Há um recurso de software que gerencia as saídas de áudio, e há o hardware de áudio que produz o som.
+
+ Conceitos básicos e aplicabilidade de 
+--------------------------------------------------
+gerenciamento de recursos
+------------------------------------
+  Os recursos que estão disponíveis em um microcomputador são limitados: memória (mesmo virtualizada), espaço em disco rígido, capacidade de processamento.
+  Tome como exemplo uma placa de rede, que permite ao microcomputador conseguir comunicar-se com outros equipamentos mesmo que estejam do outro lado do mundo, o acesso a este recurso é compartilhado entre todos os aplicativos que estejam instalados no microcomputador.
+
+  O SO lida com as questões relacionadas ao controle de estado de um recurso (pronto, disponível, desligado etc.), ao controle de qual aplicativo (e usuário) tem acesso ao recurso, manter um histórico de quem faz uso dos recursos, alocar e desalocar os recursos e manter controle dessa variação de status.
+  O SO controla o quanto um usuário ou aplicativo pode ter de tempo e uso de um determinado recurso. Esse balanço entre quem usa e por quanto tempo é a chave de um gerenciamento de sucesso em qualquer SO.
+  Atualmente, os microcomputadores possuem várias CPUs e quanto maior o número de CPU, maior a capacidade de processamento.
+  Para que seja possível ao sistema operacional controlar o uso dos recursos é necessário que cada aplicativo em execução, e cada recurso disponível (inclusive os do SO), seja identificado por identificadores únicos. Quando um aplicativo é iniciado pelo sistema operacional é associado um número de processo a este aplicativo que, posteriormente, pode desdobrar-se em vários processos, para fins de múltiplas execuções em paralelo, por exemplo. Portanto, o conceito de processo é o modo com o qual o SO lida com os aplicativos. Os usuários não lidam diretamente com isso, quem lida com essa problemática são os aplicativos. E os aplicativos para fazerem uso dos recursos sempre usam as chamadas de sistema que são providas pelo SO.
+
+Gerenciamento de processos
+--------------------------------------
+  O gerenciamento de processos trabalha sempre em um ritmo intenso, com a responsabilidade de manter a fila de processos de maneira que nenhum fique aguardando demasiadamente, bem como impedir que um único use tempo demais de processamento. Caso contrário, podem ocorrer travamentos que comprometam o funcionamento geral do SO, ou podem fazer com que algumas tarefas não se completem, temos aqui um problema de escalonamento de tarefas ou de sobrecarga de um recurso.
+
+Definição de processo
+
+ Para que um processo seja corretamente executado, ele precisa do seu código de execução e de seu contexto.  Um contexto de um processo refere-se a todos os recursos que ele esteja usando, como memória, arquivos abertos no disco rígido, conexão com a impressora. Em alguns sistemas operacionais, o termo usado para um processo pode ser tarefa ou job.
+  Durante o período em que um determinado processo está ativo ele pode ser encontrado em vários estágios:
+
+a) novo – quando o processo está em fase de criação;
+
+b) pronto -  quando o processo está preparado e aguardando ser direcionado para a execução em uma CPU;
+
+c) esperando -  quando o processo está esperando algum recurso ou evento, para que seja executado;
+
+d) executando – é o estado no qual o processo está em execução em alguma CPU;
+
+e) terminado – quando o processo não está mais em execução e o seu contexto já foi liberado.
+
+  A transição do estado de novo para pronto ocorre logo após a criação do processo, em seguida será escalonado (selecionado para a execução) para a primeira execução, e neste período fará a solicitação aos recursos que venha a necessitar. No estado "pronto" o processo terá reunido todas as condições para ser executado e aguardará apenas na fila para ser escalonado, e durante sua execução pode passar aos estados de esperando (no caso de solicitar novos recursos) ou pronto (no caso de terminar o seu quantum de execução e precisar aguardar por um novo período) e de terminado. O estado de terminado ocorre quando o processo chega ao fim, não restando mais nenhum processamento a ser feito. A mudança de estado de um processo ocorrerá sempre em função da prioridade, respeitando-se o tipo de política de escolha para a execução que estiver em uso pelo gerenciador de processos, que este processo possui (menor prioridade recebe menos tempo de execução), bem como da disponibilidade dos recursos que o processo vier a solicitar. Prioridade é um conceito adaptável, dependendo do algoritmo em uso: do menor trabalho, do mais antigo, do que estiver esperando a mais tempo.
+
+Cada processo é representado por um bloco de controle de processos, o qual consiste em um conjunto de metadados sobre os processos, normalmente referenciado por Process Control Block (PCB). Um PCB contém informação sobre:
+
+ *  o número do processo que o identifica;
+*  o estado atual do processo, dentre  os vários estados que um processo pode assumir;
+*  um contador do programa que aponta o endereço de memória que contém a próxima instrução do código de execução do aplicativo que deverá ser executado quanto o processo mudar para o estado de executando;
+*  os registradores da CPU, que são variáveis mantidas pelo SO e fundamentais para a execução do processo;
+*  dados que indicam a prioridade do processo dentro da política de escalonamento que estiver em uso no SO;  
+*  a gerência de memória para o processo;
+*  o status de E/S que inclui dados dos recursos (dispositivos) de E/S utilizados pelo processo. 
+ 
+Por fim, inclui a contabilização do tempo de CPU, que o processo já consumiu e a quantidade de CPU alocada, dentre outras informações.
+
+  Eventualmente, pode ocorrer de dois processos bloquearem um ao outro? Suponha que existam dois processos: A e B.  O processo A tem controle do disco, mas precisa de memória para poder carregar um conteúdo. Enquanto isso, o processo B tem controle da memória e deseja liberá-la salvando o conteúdo no disco, que está em uso pelo processo A. Nesta situação, A espera que B libere um recurso, enquanto B espera que A libere recursos. O resultado é um travamento mortal, bastante conhecido como "deadlock".
+
+  Quando vai ocorrer uma troca de processo na CPU (período inativo), o contexto (PCB) do processo que estava em execução é salvo em outra região da memória. Em seguida, o contexto do próximo processo a ser executado é carregado, e somente após essa carga é que o processo poderá ter sua execução iniciada.
+
+  O trabalho de escolha de qual processo deve ir para o status de executando, bem como para os demais estados requer uma estratégia de escalonamento, também denominada de política de escalonamento. Dentre as várias escolhas possíveis, as mais comuns são: FCFS; SJF Não Preemptivo; SJF Preemptivo; Prioridade Preemptivo; Round Robin. 
+
+*  o escalonamento FCFS tem por direcionamento atender o processo que chegar primeiro, resultante direta da tradução literal de First come, first served, para o qual temos que o primeiro a chegar, será o primeiro a ser servido sendo um algoritmo não preemptivo. O termo preemptivo refere-se à política de escalonamento na qual o processo é interrompido sempre que o SO julgar necessário. Dentre os motivos que justificam o SO interromper o processo está o término da fatia de tempo (quantum) que o processo possui;
+
+*  o SJF não preemptivo, no qual se escolhe o processo que represente o menor trabalho, introduz aqui um problema relativo a: como saber qual é o menor trabalho? SJF vem do inglês Shortest Job Fisrt, que significa o menor trabalho primeiro. Por ser não preemptivo este processo, uma vez iniciado na CPU, é executado até o seu término;
+
+*  o SJF preemptivo também escolhe o processo que represente o menor trabalho e interrompe o processo após o término do quantum de tempo;
+
+*  o escalonador por Prioridade Preemptivo faz o escalonamento baseado na simples prioridade dos processos e encerrando-os quando esses processos esgotarem os seus respectivos quantum  de tempo;
+
+ *  o algoritmo escalonador Round Robin é idêntico ao FCFS, porém é preemptivo, assim, trata-se de um sinônimo de escalonamento por revezamento, e é uma abordagem bastante comum.
+
+Interagindo com o gerenciador de 
+----------------------------------------------
+processos
+-------------
+
+  O gerenciador de processos possui certos níveis de configuração, mas pode definir arbitrariamente a prioridade de um determinado processo. Ele executa apenas um processo por quantum de tempo, que nada mais é do que a menor fatia de tempo que um processo recebe para ser executado em uma CPU. A priori, todos os processos recebem o mesmo quantum de tempo, mas o usuário pode definir novas divisões deste tempo.
+  Caso o usuário decida que um processo é mais prioritário, será dada uma fatia maior de tempo para esse processo, portanto, o seu quantum de tempo será maior do que dos demais processos, fazendo com que seja executado mais rápido.
+
+Usando linguagem de programação
+
+  A comunicação entre aplicativos ocorre através da application programming interface (API), que significa interface de programação de aplicativos, constituída de um conjunto de chamadas de sistema e ou chamadas de aplicativos.  É com essas API que qualquer programa se comunica com o sistema operacional e por vezes com outros programas que estejam em execução no microcomputador. Em alguns sistemas operacionais, a comunicação entre aplicativos recebe o nome de interprocess comunication (IPC).
+
+  O SO, muito além de gerenciar o microcomputador, também fornece funcionalidades (também conhecida como funcionalidades de software), que são relativas aos serviços que o SO fornece e que podem ou não estarem presentes ou ligados ao hardware. A exemplo podemos citar o uso por vários usuários simultâneos (multiusuário) via rede; os serviços de autenticação de usuário; os serviços de proteção de dados (uso de senha; encriptação; criação de pastas; criação de arquivos etc). Há um conjunto amplo dessas funcionalidades  providas pelo SO, que não são relacionadas ao hardware, mas que de alguma forma melhoram o seu acesso, ou até incluem características diferentes de uso.
+  Dessa forma, podemos afirmar que um bom SO melhora o equipamento, enquanto um SO ruim irá piorar o desempenho da máquina.
+  As chamadas de sistema são acessadas usando as APIs, por meio da linguagem de programação de seus comandos próprios. No Windows tais APIs possuem nomes que são diferentes dos nomes usados no Linux. Assim, o encadeamento correto é: programa do usuário - comandos da linguagem de programação - APIs - chamada de sistema.
+
+  Open, creat, read, write e close são comandos da linguagem C. Internamente na linguagem C, quando usados no SO Linux, por exemplo, serão redirecionados para a API syscall(). Esta API fará, enfim, a chamada de sistema correspondente, ficando parecida como “syscall( 0x5 )”  estivesse solicitando a chamada de sistema de abertura de arquivo, cujo número de chamada no sistema de macros do Linux fosse 0x5 e apontará para o trecho de código que pertence ao kernel  do SO. No Linux, a relação das chamadas de sistema pode ser vista no arquivo localizado em: /usr/include/sys/syscall.h.
+	
+  Existem muitos simuladores de processos, um deles é o que é apresentado em Carvalho et al. (2016), no qual é possível satisfazer parte das condições elencadas anteriormente, se tratando, portanto, de uma ferramenta mais simples que pode ser utilizada sem instalação (direto na web). Já um simulador completo que permite a escolha de alguns tipos de algoritmos de escalonamento, visualização do PCB, foi proposto por Machado, Maia e Pacheco (2005). Os autores, além de proporem a ferramenta, também criaram uma versão educacional para instalação em desktop, o SOsim.
+
+  Ao utilizar este simulador simples, é possível experimentar diversas situações nas quais a prioridade, dentre outros fatores, podem ser ajustadas para a simulação. Como vimos na Figura anterior, Há três diferentes estados na simulação: prontos, executando e terminados. A fila de execução pode ser modificada pelo usuário, bem como as prioridades de cada processo. Note que a simulação de processos é uma boa ferramenta para termos uma percepção de como ocorre a dinâmica na qual o SO está profundamente envolvido por meio de seu escalonador de tarefas.
