@@ -1,2 +1,2 @@
-# Conte-dos-da-Faculdade-TI
+# Material de Estudo da Faculdade-TI
 Resumo das Matérias
